@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // <-- CORREÇÃO 1: Importar
-import 'package:flutter_markdown/flutter_markdown.dart';
+// import 'package:markdown_widget/markdown_widget.dart'; // Removido temporariamente
 import 'package:leafy/locator.dart';
 import 'package:leafy/services/prefs/prefs_service.dart';
 
@@ -51,6 +51,7 @@ class _ConsentScreenState extends State<ConsentScreen> {
   @override
   void initState() {
     super.initState();
+    debugPrint('ConsentScreen initState()');
     _scrollController.addListener(_onScroll);
   }
 
@@ -62,6 +63,9 @@ class _ConsentScreenState extends State<ConsentScreen> {
   }
 
   void _onScroll() {
+    // Verifica se o widget ainda está montado
+    if (!mounted) return;
+    
     // Lógica da Barra de Leitura
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.position.pixels;
@@ -73,9 +77,11 @@ class _ConsentScreenState extends State<ConsentScreen> {
     // Lógica do "Marcar como lido"
     // Se o usuário chegou a 95% do scroll, consideramos lido
     if (_scrollProgress > 0.95 && !_hasReadPolicy) {
-      setState(() {
-        _hasReadPolicy = true;
-      });
+      if (mounted) {
+        setState(() {
+          _hasReadPolicy = true;
+        });
+      }
     }
   }
 
@@ -157,13 +163,14 @@ class _ConsentScreenState extends State<ConsentScreen> {
             child: Scrollbar(
               controller: _scrollController,
               thumbVisibility: true,
-              child: Markdown(
+              child: SingleChildScrollView(
                 controller: _scrollController,
-                data: kPolicyMarkdown,
-                styleSheet: MarkdownStyleSheet.fromTheme(theme).copyWith(
-                  p: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70),
-                  h1: theme.textTheme.headlineSmall?.copyWith(color: Colors.white, fontWeight: FontWeight.bold),
-                  h2: theme.textTheme.titleLarge?.copyWith(color: Colors.white, fontWeight: FontWeight.bold, height: 2),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    kPolicyMarkdown,
+                    style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70),
+                  ),
                 ),
               ),
             ),

@@ -43,11 +43,30 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _onSkip() {
-    // Pula direto para a tela de consentimento
-    Navigator.of(context).pushReplacementNamed('/consent');
+    debugPrint('_onSkip() chamado');
+    
+    // Verifica se o widget ainda está montado antes de navegar
+    if (!mounted) {
+      debugPrint('Widget não está montado, cancelando navegação');
+      return;
+    }
+    
+    try {
+      debugPrint('Tentando navegar para /consent');
+      // Pula direto para a tela de consentimento
+      Navigator.of(context).pushReplacementNamed('/consent');
+      debugPrint('Navegação para /consent bem-sucedida');
+    } catch (e, stackTrace) {
+      // Log do erro para debug (em produção, você pode usar um logger)
+      debugPrint('Erro na navegação: $e');
+      debugPrint('Stack trace: $stackTrace');
+    }
   }
 
   void _onNext() {
+    // Verifica se o widget ainda está montado
+    if (!mounted) return;
+    
     if (_currentPage == onboardingPages.length - 1) {
       // Última página
       _onSkip();
